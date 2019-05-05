@@ -1,10 +1,9 @@
 import { ContextMessageUpdate } from "telegraf";
-import { BaseCommandController } from "./BaseCommandController";
 import dataSourceService from "../Services/DataSourceService";
 
-class GetSimilarTracksController extends BaseCommandController {
+export default class GetSimilarTracksController {
 
-    cmd(ctx: ContextMessageUpdate): void {
+    static cmd(ctx: ContextMessageUpdate): void {
 
         let q = ctx.message.text.substring(ctx.message.text.indexOf(" ") + 1)
 
@@ -24,5 +23,5 @@ class GetSimilarTracksController extends BaseCommandController {
 
 }
 
-const getSimilarTracksController = new GetSimilarTracksController();
-export default getSimilarTracksController;
+//const getSimilarTracksController = new GetSimilarTracksController();
+//export default getSimilarTracksController;

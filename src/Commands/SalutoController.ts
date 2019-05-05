@@ -1,14 +1,13 @@
-import { BaseCommandController } from "./BaseCommandController";
 import { ContextMessageUpdate } from "telegraf";
 
-class SalutoController extends BaseCommandController {
+export default class SalutoController {
 
-    cmd(ctx: ContextMessageUpdate): void {
+    static cmd(ctx: ContextMessageUpdate): void {
         ctx.reply(ctx.message.text);
     }
 
 }
 
-const salutoController = new SalutoController();
-export default salutoController;
+//const salutoController = new SalutoController();
+//export default salutoController;
 

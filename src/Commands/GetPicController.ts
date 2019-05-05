@@ -1,10 +1,9 @@
 import { ContextMessageUpdate } from "telegraf";
-import { BaseCommandController } from "./BaseCommandController";
 import dataSourceService from "../Services/DataSourceService";
 
-class GetPicController extends BaseCommandController {
+export default class GetPicController {
 
-    cmd(ctx: ContextMessageUpdate): void {
+    static cmd(ctx: ContextMessageUpdate): void {
 
         let q = ctx.message.text.substring(ctx.message.text.indexOf(" ") + 1)
         
@@ -26,5 +25,5 @@ class GetPicController extends BaseCommandController {
     }
 }
 
-const getPicController = new GetPicController();
-export default getPicController;
+//const getPicController = new GetPicController();
+//export default getPicController;
