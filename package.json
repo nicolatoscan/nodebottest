@@ -1,0 +1,24 @@
+{
+  "name": "express-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "tsc | node ./bin/bot.js",
+    "play": "node ./bin/bot.js",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "request": "^2.88.0",
+    "telegraf": "^3.29.0",
+    "typescript": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/request": "^2.48.1",
+    "gulp": "^4.0.1",
+    "gulp-typescript": "^5.0.1"
+  }
+}
