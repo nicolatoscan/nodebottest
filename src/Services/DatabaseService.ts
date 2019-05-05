@@ -9,7 +9,6 @@ export default class DatabaseService {
     }
 
     static getLastFMUsername(chatId: string, callback: (lastFMUsername: string) => void) {
-        console.log(chatId)
         UserDataModel
             .findOne({
                 chatid: chatId

@@ -42,10 +42,10 @@ class DataSourceService {
                 return;
             }
 
-            data = JSON.parse(data)
+            let artist = JSON.parse(data)["artist"]
             let res: {name: string, bio: string}  ={
-                name: data["artist"]["name"],
-                bio: data["artist"]["bio"]["summary"]
+                name: artist ? artist["name"] : "",
+                bio: (artist && artist["bio"]) ? artist["bio"]["summary"] : ""
             } 
             callback(res)
         });
