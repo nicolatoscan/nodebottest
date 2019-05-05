@@ -5,10 +5,13 @@ export default class GetPicController {
 
     static cmd(ctx: ContextMessageUpdate): void {
 
-        let q = ctx.message.text.substring(ctx.message.text.indexOf(" ") + 1)
+        let spaceIndex = ctx.message.text.indexOf(" ")
+        let q: string = null;
+        if (spaceIndex > 0) {
+            q = ctx.message.text.substring(spaceIndex + 1)
+        }
         
-        
-        if (q.length <= 1) {
+        if (q == null || q.length <= 0) {
             ctx.reply("/pic nome canzone")
             return;
         }

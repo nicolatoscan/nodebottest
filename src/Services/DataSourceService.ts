@@ -21,6 +21,38 @@ class DataSourceService {
 
     }
 
+    public searchArtists(q: string, callback: (mbid: string) => void = null) {
+        request.get(this.baseUrl + "method=artist.search&limit=5&artist=" + q, (err, response, data) => {
+            if (err != null) {
+                callback(null)
+                return;
+            }
+
+            data = JSON.parse(data)
+            let artists: any[] = data["results"]["artistmatches"]["artist"]
+            let mbids: string[] = artists.map(a => a["mbid"])
+            callback(mbids.length < 0 ? null : mbids[0])
+        });
+    }
+
+    public getArtistInfo(mbid: string, callback: (artist: {name: string, bio: string}) => void = null) {
+        request.get(this.baseUrl + "method=artist.getinfo&mbid=" + mbid, (err, response, data) => {
+            if (err != null) {
+
+                return;
+            }
+
+            data = JSON.parse(data)
+            let res: {name: string, bio: string}  ={
+                name: data["artist"]["name"],
+                bio: data["artist"]["bio"]["summary"]
+            } 
+            callback(res)
+        });
+    }
+
+
+
     public getSimilarTracks(q: string, callback: (tracks: string[]) => void = null) {
         this.getTrackMbid(q, (mbid) => {
             request.get(this.baseUrl + "method=track.getsimilar&mbid=" + mbid, (err, response, data) => {
