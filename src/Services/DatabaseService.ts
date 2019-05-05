@@ -8,74 +8,86 @@ export default class DatabaseService {
     constructor() {
     }
 
-    static getLastFMUsername(chatId: string, callback: (lastFMUsername: string) => void) {
-        UserDataModel
-            .findOne({
-                chatid: chatId
-            })
-            .then(userData => {
-                if (userData)
-                    callback(userData.lastfmusername)
-                else
-                    callback(null)
-            })
+    static getLastFMUsername(chatId: string): Promise<string> {
+
+        return new Promise<string>((resolve, reject) => {
+
+            UserDataModel
+                .findOne({
+                    chatid: chatId
+                })
+                .then(userData => {
+                    if (userData)
+                        resolve(userData.lastfmusername)
+                    else
+                        resolve(null)
+                })
+        })
+
     }
 
-    static saveLasFMtUsername(chatId: string, lastFMUsername: string, telegramUsername: string) {
-        UserDataModel
-            .find({
-                chatid: chatId
-            })
-            .then(userDatas => {
+    static saveLasFMtUsername(chatId: string, lastFMUsername: string, telegramUsername: string): Promise<void> {
 
-                let usedata = null;
+        return new Promise<void>((resolve, reject) => {
 
-                if (userDatas.length >= 1) { //Edit
+            UserDataModel
+                .find({
+                    chatid: chatId
+                })
+                .then(userDatas => {
 
-                    usedata = userDatas[0];
-                    usedata.lastfmusername = lastFMUsername
-                    usedata.telegramusername = telegramUsername
-                    usedata.dateTime = new Date()
+                    let usedata = null;
 
-                } else { //Add
+                    if (userDatas.length >= 1) { //Edit
 
-                    usedata = new UserDataModel({
-                        _id: new mongoose.Types.ObjectId(),
-                        chatid: chatId,
-                        lastfmusername: lastFMUsername,
-                        telegramusername: telegramUsername,
-                        dateTime: new Date()
-                    })
+                        usedata = userDatas[0];
+                        usedata.lastfmusername = lastFMUsername
+                        usedata.telegramusername = telegramUsername
+                        usedata.dateTime = new Date()
 
-                }
+                    } else { //Add
 
-                usedata.save()
-                    .then(res => {
-                        console.log("Db modificato");
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
+                        usedata = new UserDataModel({
+                            _id: new mongoose.Types.ObjectId(),
+                            chatid: chatId,
+                            lastfmusername: lastFMUsername,
+                            telegramusername: telegramUsername,
+                            dateTime: new Date()
+                        })
 
-            })
+                    }
+
+                    usedata.save()
+                        .then(res => {
+                            console.log("Db modificato");
+                            resolve()
+                        })
+                        .catch(err => {
+                            console.log(err)
+                            reject()
+                        })
+
+                })
+
+        })
     }
 
-    static handleUsername(ctx: ContextMessageUpdate, callback: (usernam: string) => void) {
+    static async handleUsername(ctx: ContextMessageUpdate): Promise<string> {
+
         let spaceIndex = ctx.message.text.indexOf(" ")
         let username = null;
         if (spaceIndex > 0) {
             username = ctx.message.text.substring(spaceIndex + 1)
         }
-        
-        
+
+
         if (username == null || username.length <= 1) {
-            DatabaseService.getLastFMUsername(ctx.chat.id.toString(), (username) => {
-                callback(username)
-            });
+            username = await DatabaseService.getLastFMUsername(ctx.chat.id.toString());
         } else {
             DatabaseService.saveLasFMtUsername(ctx.chat.id.toString(), username, ctx.from.username);
-            callback(username)
         }
+
+        return username;
     }
 
 }

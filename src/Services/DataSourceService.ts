@@ -1,140 +1,92 @@
 import * as request from "request"
+import axios from "axios"
 
 
-class DataSourceService {
+export default class DataSourceService {
 
-    private baseUrl = "http://ws.audioscrobbler.com/2.0/?format=json&api_key=" + process.env.LAST_KEY + "&"
+    private static baseUrl = "http://ws.audioscrobbler.com/2.0/?format=json&api_key=" + process.env.LAST_KEY + "&"
 
     constructor() {
     }
 
-    public searchTracks(q: string, callback: (tracks: any[]) => void = null) {
-        request.get(this.baseUrl + "method=track.search&track=" + q, (err, response, data) => {
-            if (err != null) {
-                return;
-            }
+    public static async searchTracks(q: string): Promise<any[]> {
 
-            data = JSON.parse(data)
-            let tracks: any[] = data["results"]["trackmatches"]["track"]
-            callback(tracks)
-        });
+        let data = (await axios.get(DataSourceService.baseUrl + "method=track.search&track=" + q)).data
 
+        let tracks: any[] = data["results"]["trackmatches"]["track"]
+        return tracks;
     }
 
-    public searchArtists(q: string, callback: (mbid: string) => void = null) {
-        request.get(this.baseUrl + "method=artist.search&limit=5&artist=" + q, (err, response, data) => {
-            if (err != null) {
-                callback(null)
-                return;
-            }
+    public static async searchArtists(q: string): Promise<string> {
 
-            data = JSON.parse(data)
-            let artists: any[] = data["results"]["artistmatches"]["artist"]
-            let mbids: string[] = artists.map(a => a["mbid"])
-            callback(mbids.length < 0 ? null : mbids[0])
-        });
+        let data = (await axios.get(DataSourceService.baseUrl + "method=artist.search&limit=5&artist=" + q)).data
+
+        let artists: any[] = data["results"]["artistmatches"]["artist"]
+        let mbids: string[] = artists.map(a => a["mbid"])
+        return (mbids.length <= 0 ? null : mbids[0])
     }
 
-    public getArtistInfo(mbid: string, callback: (artist: {name: string, bio: string}) => void = null) {
-        request.get(this.baseUrl + "method=artist.getinfo&mbid=" + mbid, (err, response, data) => {
-            if (err != null) {
+    public static async getArtistInfo(mbid: string): Promise<{ name: string, bio: string }> {
 
-                return;
-            }
+        let data = (await axios.get(DataSourceService.baseUrl + "method=artist.getinfo&mbid=" + mbid)).data
 
-            let artist = JSON.parse(data)["artist"]
-            let res: {name: string, bio: string}  ={
-                name: artist ? artist["name"] : "",
-                bio: (artist && artist["bio"]) ? artist["bio"]["summary"] : ""
-            } 
-            callback(res)
-        });
+        let artist = data["artist"]
+        return {
+            name: artist ? artist["name"] : "",
+            bio: (artist && artist["bio"]) ? artist["bio"]["summary"] : ""
+        }
     }
 
 
 
-    public getSimilarTracks(q: string, callback: (tracks: string[]) => void = null) {
-        this.getTrackMbid(q, (mbid) => {
-            request.get(this.baseUrl + "method=track.getsimilar&mbid=" + mbid, (err, response, data) => {
-                if (err != null) {
-                    return;
-                }
+    public static async getSimilarTracks(q: string): Promise<string[]> {
+        let mbid = await DataSourceService.getTrackMbid(q)
+        let data = (await axios.get(DataSourceService.baseUrl + "method=track.getsimilar&mbid=" + mbid)).data
 
-                data = JSON.parse(data)
-                let tracks: any[] = data["similartracks"]["track"]
-                callback(tracks.map(t => t["name"] + " - " + t["artist"]["name"]))
-            });
-
-        })
-
+        let tracks: any[] = data["similartracks"]["track"]
+        return tracks.map(t => t["name"] + " - " + t["artist"]["name"])
     }
 
-    public getTrackInfo(mbid: string, callback: (info: any) => void = null) {
+    public static async getTrackInfo(mbid: string): Promise<any> {
         if (mbid === null || mbid === undefined) {
-            callback(null)
-            return;
+            return null;
         }
 
-        request.get(this.baseUrl + "method=track.getInfo&mbid=" + mbid, (err, response, data) => {
-            if (err != null) {
-                return;
-            }
-            data = JSON.parse(data)
-            callback(data["track"])
-        });
-
+        let data = (await axios.get(DataSourceService.baseUrl + "method=track.getInfo&mbid=" + mbid)).data
+        return data["track"]
     }
 
-    public getTrackMbid(q: string, callback: (mbid: string) => void = null) {
-        this.searchTracks(q, (tracks) => callback(tracks.length > 0 ? tracks[0]["mbid"] : null))
+    public static async getTrackMbid(q: string): Promise<string> {
+        let tracks = await DataSourceService.searchTracks(q)
+        return (tracks.length > 0 ? tracks[0]["mbid"] : null)
     }
 
-    public getTrackImage(q: string, callback: (url: string) => void = null) {
-        this.getTrackMbid(q, (mbid) => {
-            this.getTrackInfo(mbid, (info) => {
-                if (info) {
-                    let images: any[] = info["album"]["image"]
-                    let url = images[images.length - 1]["#text"]
-                    callback(url)
-                } else {
-                    callback(null)
-                }
+    public static async getTrackImage(q: string): Promise<string> {
+        let mbid = await DataSourceService.getTrackMbid(q)
+        if (mbid == null || mbid == undefined)
+            return null
 
-            })
-        })
+        let info = await DataSourceService.getTrackInfo(mbid)
+        if (info == null || info == undefined)
+            return null
+
+        let images: any[] = info["album"]["image"]
+        let url = images[images.length - 1]["#text"]
+        return url
     }
 
-    public getImageFromUrl(url: string, callback: (url: string) => void = null) {
-        request.get(url, (err, res, data) => callback(data));
+    public static async getLastTracks(username: string): Promise<string[]> {
+        let data = (await axios.get(DataSourceService.baseUrl + "method=user.getrecenttracks&user=" + username)).data
+
+        let tracks: any[] = data["recenttracks"]["track"]
+        return (tracks.map(t => t["name"] + " - " + t["artist"]["#text"]))
     }
 
-    public getLastTracks(username: string, callback: (tracks: string[]) => void = null) {
-        request.get(this.baseUrl + "method=user.getrecenttracks&user=" + username, (err, response, data) => {
-            if (err != null || data["error"]) {
-                callback(["user non trovato"])
-                return;
-            }
+    public static async getTopTracks(username: string): Promise<string[]> {
+        let data = (await axios.get(DataSourceService.baseUrl + "method=user.gettoptracks&user=" + username)).data
 
-            data = JSON.parse(data)
-            let tracks: any[] = data["recenttracks"]["track"]
-            callback(tracks.map(t => t["name"] + " - " + t["artist"]["#text"] ))
-        });
-    }
-
-    public getTopTracks(username: string, callback: (tracks: string[]) => void = null) {
-        request.get(this.baseUrl + "method=user.gettoptracks&user=" + username, (err, response, data) => {
-            if (err != null || data["error"]) {
-                callback(["user non trovato"])
-                return;
-            }
-
-            data = JSON.parse(data)
-            let tracks: any[] = data["toptracks"]["track"]
-            callback(tracks.map(t => t["name"] + " - " + t["artist"]["name"] ))
-        });
+        let tracks: any[] = data["toptracks"]["track"]
+        return (tracks.map(t => t["name"] + " - " + t["artist"]["name"]))
     }
 
 }
-
-const dataSourceService = new DataSourceService()
-export default dataSourceService;

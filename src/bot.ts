@@ -8,7 +8,6 @@ import GetPicController from "./Commands/GetPicController";
 import GetLastController from "./Commands/GetLastController";
 import GetTopController from "./Commands/GetTopController";
 import GetArtistInfoInline from "./Commands/GetArtistInfoInline";
-import { InlineQueryResult } from "telegraf/typings/telegram-types";
 
 
 class Bot {

@@ -1,25 +1,19 @@
 import { ContextMessageUpdate } from "telegraf";
-import dataSourceService from "../Services/DataSourceService";
+import DataSourceService from "../Services/DataSourceService";
 import DatabaseService from "../Services/DatabaseService";
 
 export default class GetLastController {
 
-    static cmd(ctx: ContextMessageUpdate): void {
+    static async cmd(ctx: ContextMessageUpdate): Promise<void> {
 
-        DatabaseService.handleUsername(ctx, (username) => {
-            if (username == null || username == undefined) {
-                ctx.reply("/last username")
-                return;
-            }
-            console.log(username);
-            dataSourceService.getLastTracks(username, (tracks) => {
-                ctx.reply(tracks.join("\n"))
-            })
-        })
+        let username = await DatabaseService.handleUsername(ctx)
+        if (username == null || username == undefined) {
+            ctx.reply("/last username")
+            return;
+        }
+        console.log(username);
 
+        let tracks = await DataSourceService.getLastTracks(username)
+        ctx.reply(tracks.join("\n"))
     }
-
 }
-
-//const getLastController = new GetLastController();
-//export default getLastController;

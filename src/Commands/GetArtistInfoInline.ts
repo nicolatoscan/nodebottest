@@ -1,5 +1,5 @@
 import { ContextMessageUpdate } from "telegraf";
-import dataSourceService from "../Services/DataSourceService";
+import DataSourceService from "../Services/DataSourceService";
 import DatabaseService from "../Services/DatabaseService";
 import { InlineQuery } from "telegram-typings";
 import { InlineQueryResult, ExtraAnswerInlineQuery } from "telegraf/typings/telegram-types";
@@ -26,34 +26,29 @@ export default class GetArtistInfoInline {
             return;
         }
 
-        dataSourceService.searchArtists(inlineQuery.query, (mbid) => {
-            if (mbid == undefined || mbid == null) {
-                answerInlineQuery(noresult)
-                return;
+
+
+        let mbid = await DataSourceService.searchArtists(inlineQuery.query)
+        if (mbid == undefined || mbid == null) {
+            answerInlineQuery(noresult)
+            return;
+        }
+
+        let info = await DataSourceService.getArtistInfo(mbid)
+
+        let result: InlineQueryResult[] = [{
+            type: 'article',
+            id: "1",
+            title: info.name,
+            description: info.bio,
+            input_message_content: {
+                message_text: info.name + "\n\n" + info.bio,
+                parse_mode: 'Markdown'
             }
+        }]
 
-            dataSourceService.getArtistInfo(mbid, (info) => {
-
-                let result: InlineQueryResult[] = [{
-                    type: 'article',
-                    id: "1",
-                    title: info.name,
-                    description: info.bio,
-                    input_message_content: {
-                        message_text: info.name + "\n\n" + info.bio,
-                        parse_mode: 'Markdown'
-                    }
-                }]
-
-                answerInlineQuery(result)
-            })
-        })
-
-
+        await answerInlineQuery(result)
 
     }
 
 }
-
-//const getLastController = new GetLastController();
-//export default getLastController;
