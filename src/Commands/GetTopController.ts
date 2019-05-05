@@ -2,17 +2,17 @@ import { ContextMessageUpdate } from "telegraf";
 import dataSourceService from "../Services/DataSourceService";
 import DatabaseService from "../Services/DatabaseService";
 
-export default class GetLastController {
+export default class GetTopController {
 
     static cmd(ctx: ContextMessageUpdate): void {
 
         DatabaseService.handleUsername(ctx, (username) => {
             if (username == null || username == undefined) {
-                ctx.reply("/last username")
+                ctx.reply("/top username")
                 return;
             }
             console.log(username);
-            dataSourceService.getLastTracks(username, (tracks) => {
+            dataSourceService.getTopTracks(username, (tracks) => {
                 ctx.reply(tracks.join("\n"))
             })
         })

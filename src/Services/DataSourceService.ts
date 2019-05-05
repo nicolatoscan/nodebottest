@@ -89,6 +89,19 @@ class DataSourceService {
         });
     }
 
+    public getTopTracks(username: string, callback: (tracks: string[]) => void = null) {
+        request.get(this.baseUrl + "method=user.gettoptracks&user=" + username, (err, response, data) => {
+            if (err != null || data["error"]) {
+                callback(["user non trovato"])
+                return;
+            }
+
+            data = JSON.parse(data)
+            let tracks: any[] = data["toptracks"]["track"]
+            callback(tracks.map(t => t["name"] + " - " + t["artist"]["name"] ))
+        });
+    }
+
 }
 
 const dataSourceService = new DataSourceService()

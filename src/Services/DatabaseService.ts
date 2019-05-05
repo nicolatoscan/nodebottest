@@ -1,13 +1,14 @@
 import * as mongoose from 'mongoose';
 import { UserDataModel, IUserDataModel } from '../Model/UserData';
+import { ContextMessageUpdate } from 'telegraf';
 
 
-class DatabaseService {
+export default class DatabaseService {
 
     constructor() {
     }
 
-    getLastFMUsername(chatId: string, callback: (lastFMUsername: string) => void) {
+    static getLastFMUsername(chatId: string, callback: (lastFMUsername: string) => void) {
         console.log(chatId)
         UserDataModel
             .findOne({
@@ -21,7 +22,7 @@ class DatabaseService {
             })
     }
 
-    saveLasFMtUsername(chatId: string, lastFMUsername: string, telegramUsername: string) {
+    static saveLasFMtUsername(chatId: string, lastFMUsername: string, telegramUsername: string) {
         UserDataModel
             .find({
                 chatid: chatId
@@ -60,7 +61,22 @@ class DatabaseService {
             })
     }
 
-}
+    static handleUsername(ctx: ContextMessageUpdate, callback: (usernam: string) => void) {
+        let spaceIndex = ctx.message.text.indexOf(" ")
+        let username = null;
+        if (spaceIndex > 0) {
+            username = ctx.message.text.substring(spaceIndex + 1)
+        }
+        
+        
+        if (username == null || username.length <= 1) {
+            DatabaseService.getLastFMUsername(ctx.chat.id.toString(), (username) => {
+                callback(username)
+            });
+        } else {
+            DatabaseService.saveLasFMtUsername(ctx.chat.id.toString(), username, ctx.from.username);
+            callback(username)
+        }
+    }
 
-const databaseService = new DatabaseService()
-export default databaseService;
+}
