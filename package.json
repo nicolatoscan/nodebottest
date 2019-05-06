@@ -4,9 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "tsc | node ./bin/bot.js",
-    "play": "node ./bin/bot.js",
-    "build": "tsc"
+    "full": "tsc --sourcemap | node ./bin/bot.js",
+    "start": "node ./bin/bot.js",
+    "build": "tsc --sourcemap"
   },
   "author": "",
   "license": "ISC",
