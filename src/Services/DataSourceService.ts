@@ -53,7 +53,7 @@ export default class DataSourceService {
 
     public static async getTrackInfo(mbid: string): Promise<Track> {
         let data = (await axios.get(DataSourceService.baseUrl + "method=track.getinfo&mbid=" + mbid)).data
-        console.log(mbid) 
+        console.log(mbid)
         if (data.error)
             return null
         return data.track
@@ -61,10 +61,9 @@ export default class DataSourceService {
 
     public static async getTrackImage(mbid: string): Promise<string> {
         let track = await DataSourceService.getTrackInfo(mbid)
-        if (track != null)
-            return null
-
-        let url = track.album.image.slice(-1).pop()["#text"]
+        let url = null;
+        if (track && track.album && track.album.image.length > 0)
+            url = track.album.image.slice(-1).pop()["#text"]
         return url
     }
 
