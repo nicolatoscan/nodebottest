@@ -14,6 +14,6 @@ export default class GetLastController {
         console.log(username);
 
         let tracks = await DataSourceService.getLastTracks(username)
-        ctx.reply(tracks.join("\n"))
+        ctx.reply(tracks.map(t => t.name + " - " + t.artist["#text"]).join("\n"))
     }
 }

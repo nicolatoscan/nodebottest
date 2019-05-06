@@ -18,11 +18,17 @@ export default class GetPicController {
 
         console.log(q);
 
-        let url = await DataSourceService.getTrackImage(q)
-        if (url == null)
+        let mbid = await DataSourceService.searchArtistsMbid(q)
+        if (mbid == null || mbid == "") {
             ctx.reply("Immagine non trovata")
-        else
+            return;
+        }
+
+        let url = await DataSourceService.getTrackImage(mbid)
+        if (url)
             ctx.replyWithPhoto(url);
+        else
+            ctx.reply("Immagine non trovata")
 
     }
 }

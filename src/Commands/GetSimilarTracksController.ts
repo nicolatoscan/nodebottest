@@ -19,8 +19,7 @@ export default class GetSimilarTracksController {
         console.log(q);
 
         let tracks = await DataSourceService.getSimilarTracks(q)
-        tracks.join("\n")
-        ctx.reply(tracks.join("\n"));
+        ctx.reply(tracks.map(t => t.name + " - " + t.artist["#text"]).join("\n"));
 
     }
 

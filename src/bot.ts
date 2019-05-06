@@ -8,6 +8,7 @@ import GetPicController from "./Commands/GetPicController";
 import GetLastController from "./Commands/GetLastController";
 import GetTopController from "./Commands/GetTopController";
 import GetArtistInfoInline from "./Commands/GetArtistInfoInline";
+import GetCurrentController from "./Commands/GetCurrentController";
 
 
 class Bot {
@@ -31,6 +32,7 @@ class Bot {
         this.bot.command("/pic", GetPicController.cmd)
         this.bot.command("/last", GetLastController.cmd)
         this.bot.command("/top", GetTopController.cmd)
+        this.bot.command("/current", GetCurrentController.cmd)
         this.bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => { GetArtistInfoInline.cmd(inlineQuery, answerInlineQuery) })
     }
 

@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { UserDataModel, IUserDataModel } from '../Model/UserData';
+import { UserDataModel, IUserDataModel } from '../ModelDB/UserData';
 import { ContextMessageUpdate } from 'telegraf';
 
 

@@ -26,9 +26,7 @@ export default class GetArtistInfoInline {
             return;
         }
 
-
-
-        let mbid = await DataSourceService.searchArtists(inlineQuery.query)
+        let mbid = await DataSourceService.searchArtistsMbid(inlineQuery.query)
         if (mbid == undefined || mbid == null) {
             answerInlineQuery(noresult)
             return;
@@ -40,9 +38,9 @@ export default class GetArtistInfoInline {
             type: 'article',
             id: "1",
             title: info.name,
-            description: info.bio,
+            description: info.bio.summary,
             input_message_content: {
-                message_text: info.name + "\n\n" + info.bio,
+                message_text: info.name + "\n\n" + info.bio.summary,
                 parse_mode: 'Markdown'
             }
         }]

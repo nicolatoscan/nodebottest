@@ -14,7 +14,7 @@ export default class GetTopController {
         console.log(username);
 
         let tracks = await DataSourceService.getTopTracks(username)
-        ctx.reply(tracks.join("\n"))
+        ctx.reply(tracks.map(t => t.name + " - " + t.artist["#text"]).join("\n"))
 
     }
 
